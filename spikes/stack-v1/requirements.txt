@@ -1,0 +1,2 @@
+minijinja==3.0.5
+wasmtime==50.0.1

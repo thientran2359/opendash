@@ -3,7 +3,7 @@
 ## Ngữ cảnh và nguồn quyết định
 
 - Đọc README.md và docs/05_PRODUCT_REQUIREMENTS_V1.md trước khi đề xuất tech stack hoặc thay đổi kiến trúc/code. Tra decision log và thread khi cần lịch sử đề xuất.
-- Dự án hiện ở giai đoạn thiết kế, chưa có runtime. Không báo đã build/test/benchmark nếu chưa thực hiện được trên mã thật.
+- Dự án phát triển trước trên Windows. Lát cắt Rust và cách kiểm chứng được ghi trong README. Không báo đã build/test/benchmark nếu chưa thực hiện được trên mã thật.
 - Giữ các ràng buộc đã xác nhận trong tài liệu 05, bao gồm Rust + SQLite, một file thực thi, builder và plugin chạy logic server từ bản đầu. Thư viện cụ thể, cách render và runtime plugin còn mở.
 - Giữ docs/01–04 và thread cũ làm tài liệu tham khảo. Chỉ đạo mới của chủ dự án và tài liệu 05 có ưu tiên. Đồng thuận AI là ý kiến kỹ thuật, tách biệt với quyết định của chủ dự án và kết quả kiểm chứng.
 
@@ -20,7 +20,7 @@
 - Với thay đổi hành vi, chọn kiểm chứng theo phạm vi: preview chưa lưu, cập nhật khi Lưu, dữ liệu và bố cục khi đổi theme, quyền và lỗi plugin, hoặc backup/restore. Không tạo test chỉ lặp lại implementation.
 - Trạng thái thiết kế `AGREED` khác `implemented` và `verified`. Giữ các trạng thái này riêng; không đánh dấu M0 hoàn thành khi thiếu fixtures/spike có bằng chứng.
 - Dùng đường dẫn Markdown tương đối trong repo. Sau khi đổi docs, kiểm tra link nội bộ và git diff --check. Cập nhật decision log/summary khi contract thay đổi.
-- Chưa có workspace/package manifest: không bịa lệnh chạy. Khi thêm workspace, ghi lệnh chính xác trong README cùng dependency lockfile theo hệ sinh thái.
+- Ghi lệnh chạy chính xác trong README và giữ Cargo.lock đồng bộ với Cargo.toml. Dùng `cargo build --locked` để kiểm tra bản build lặp lại được.
 
 ## Trao đổi với Antigravity/Codex
 

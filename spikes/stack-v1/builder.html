@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8">
+<title>OpenDash — thử block từ theme ZIP</title>
+<style>
+body { font: 16px system-ui; margin: 24px; color: #182834; }
+main { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+label, input, select { display: block; margin-block: 10px; }
+iframe { border: 1px solid #bbb; width: 100%; height: 220px; }
+</style>
+<h1>Thử block từ theme ZIP</h1>
+<main>
+  <section>
+    <label>Gói theme <input id="theme" type="file" accept=".zip"></label>
+    <label>Block <select id="type" aria-label="Block"></select></label>
+    <form id="fields"></form>
+    <button id="preview">Xem trước</button>
+    <button id="save">Lưu</button>
+    <p id="status" role="status"></p>
+    <a href="/">Trang công khai</a>
+  </section>
+  <iframe sandbox id="canvas" title="Xem trước block"></iframe>
+</main>
+<script>
+const el = id => document.getElementById(id);
+let registry;
+async function refresh(restoreSaved = false) {
+  const current = {
+    type: el('type').value,
+    values: Object.fromEntries(new FormData(el('fields')))
+  };
+  const saved = restoreSaved ? await (await fetch('/page')).json() : null;
+  registry = await (await fetch('/registry')).json();
+  el('type').replaceChildren(...Object.keys(registry).map(id => new Option(id, id)));
+  const block = saved || current;
+  if (Object.hasOwn(registry, block.type)) {
+    el('type').value = block.type;
+    showFields(block.values);
+  } else {
+    showFields();
+  }
+}
+function showFields(values = {}) {
+  el('fields').replaceChildren();
+  for (const [name, title] of Object.entries(registry[el('type').value] || {})) {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.name = name;
+    input.value = values[name] ?? '';
+    label.append(title, input);
+    el('fields').append(label);
+  }
+}
+async function submit(path, body) {
+  try {
+    const contentType = path === '/theme' ? 'application/zip' : 'application/json';
+    const response = await fetch(path, {
+      method: 'POST', headers: {'Content-Type': contentType}, body
+    });
+    const text = await response.text();
+    if (!response.ok) throw new Error(text);
+    if (path === '/theme') await refresh();
+    else el('canvas').srcdoc = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'">' + text;
+    el('status').textContent = {'/theme':'Đã nạp theme', '/preview':'Đang xem trước', '/save':'Đã lưu'}[path];
+  } catch (error) {
+    el('status').textContent = error.message;
+  }
+}
+el('theme').onchange = () => {
+  const file = el('theme').files[0];
+  if (file) submit('/theme', file);
+};
+el('type').onchange = () => showFields();
+el('fields').onsubmit = event => event.preventDefault();
+for (const id of ['preview', 'save']) {
+  el(id).onclick = () => submit('/' + id, JSON.stringify({
+    type: el('type').value,
+    values: Object.fromEntries(new FormData(el('fields')))
+  }));
+}
+refresh(true).catch(error => { el('status').textContent = error.message; });
+</script>
+</html>
